@@ -4,7 +4,6 @@ import {
   DnsOutlined,
   HelpOutlineRounded,
   HistoryEduOutlined,
-  RouterOutlined,
   SettingsOutlined,
   SpeedOutlined,
 } from '@mui/icons-material'
@@ -29,8 +28,6 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
 import { BasePage } from '@/components/base'
-import { ClashModeCard } from '@/components/home/clash-mode-card'
-import { CurrentProxyCard } from '@/components/home/current-proxy-card'
 import { DailyTrafficCard } from '@/components/home/daily-traffic-card'
 import { EnhancedCard } from '@/components/home/enhanced-card'
 import { EnhancedTrafficStats } from '@/components/home/enhanced-traffic-stats'
@@ -64,9 +61,7 @@ const LazySystemInfoCard = lazy(() =>
 // 定义首页卡片设置接口
 interface HomeCardsSettings {
   profile: boolean
-  proxy: boolean
   network: boolean
-  mode: boolean
   traffic: boolean
   dailyTraffic: boolean
   info: boolean
@@ -132,29 +127,11 @@ const HomeSettingsDialog = ({
           <FormControlLabel
             control={
               <Checkbox
-                checked={cards.proxy || false}
-                onChange={() => handleToggle('proxy')}
-              />
-            }
-            label={t('home.page.settings.cards.currentProxy')}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
                 checked={cards.network || false}
                 onChange={() => handleToggle('network')}
               />
             }
             label={t('home.page.settings.cards.network')}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={cards.mode || false}
-                onChange={() => handleToggle('mode')}
-              />
-            }
-            label={t('home.page.settings.cards.proxyMode')}
           />
           <FormControlLabel
             control={
@@ -231,9 +208,7 @@ const HomePage = () => {
     () => ({
       info: false,
       profile: true,
-      proxy: true,
       network: true,
-      mode: true,
       traffic: true,
       dailyTraffic: true,
       clashinfo: true,
@@ -319,9 +294,7 @@ const HomePage = () => {
         'profile',
         <HomeProfileCard current={current} onProfileUpdated={mutateProfiles} />,
       ),
-      renderCard('proxy', <CurrentProxyCard />),
       renderCard('network', <NetworkSettingsCard />),
-      renderCard('mode', <ClashModeEnhancedCard />),
       renderCard(
         'test',
         <Suspense fallback={<Skeleton variant="rectangular" height={200} />}>
@@ -448,21 +421,6 @@ const NetworkSettingsCard = () => {
       action={null}
     >
       <ProxyTunCard />
-    </EnhancedCard>
-  )
-}
-
-// 增强版 Clash 模式卡片组件
-const ClashModeEnhancedCard = () => {
-  const { t } = useTranslation()
-  return (
-    <EnhancedCard
-      title={t('home.page.cards.proxyMode')}
-      icon={<RouterOutlined />}
-      iconColor="info"
-      action={null}
-    >
-      <ClashModeCard />
     </EnhancedCard>
   )
 }
