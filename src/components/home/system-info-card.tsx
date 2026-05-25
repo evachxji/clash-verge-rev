@@ -6,21 +6,14 @@ import {
   ExtensionOutlined,
 } from '@mui/icons-material'
 import { Typography, Stack, Divider, Chip, IconButton } from '@mui/material'
-import { useLockFn } from 'ahooks'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
 import { useServiceInstaller } from '@/hooks/use-service-installer'
 import { useSystemState } from '@/hooks/use-system-state'
-import {
-  useUpdate,
-  updateLastCheckTime,
-  readLastCheckTime,
-} from '@/hooks/use-update'
 import { useVerge } from '@/hooks/use-verge'
 import { getSystemInfo } from '@/services/cmds'
-import { showNotice } from '@/services/notice-service'
 import { version as appVersion } from '@root/package.json'
 
 import { EnhancedCard } from './enhanced-card'
@@ -32,15 +25,7 @@ export const SystemInfoCard = () => {
   const { isAdminMode, isSidecarMode } = useSystemState()
   const { installServiceAndRestartCore } = useServiceInstaller()
 
-  // 自动检查更新逻辑（lastCheckUpdate 由 useUpdate 统一管理）
-  const { checkUpdate: triggerCheckUpdate, lastCheckUpdate } = useUpdate(true)
-
   const [osInfo, setOsInfo] = useState('')
-
-  const lastCheckUpdateText = useMemo(
-    () => (lastCheckUpdate ? new Date(lastCheckUpdate).toLocaleString() : '-'),
-    [lastCheckUpdate],
-  )
 
   // 初始化系统信息
   useEffect(() => {
@@ -64,18 +49,6 @@ export const SystemInfoCard = () => {
       .catch(console.error)
   }, [])
 
-  // 如果启用了自动检查更新但没有记录，设置当前时间并延迟检查
-  useEffect(() => {
-    if (!verge?.auto_check_update) return
-    if (readLastCheckTime() !== null) return
-
-    updateLastCheckTime()
-    const timeoutId = window.setTimeout(() => {
-      triggerCheckUpdate().catch(console.error)
-    }, 5000)
-    return () => window.clearTimeout(timeoutId)
-  }, [verge?.auto_check_update, triggerCheckUpdate])
-
   // 导航到设置页面
   const goToSettings = useCallback(() => {
     navigate('/settings')
@@ -97,24 +70,6 @@ export const SystemInfoCard = () => {
       installServiceAndRestartCore()
     }
   }, [isSidecarMode, isAdminMode, installServiceAndRestartCore])
-
-  // 检查更新
-  const onCheckUpdate = useLockFn(async () => {
-    try {
-      const result = await triggerCheckUpdate()
-      const info = result.data
-      if (!info?.available) {
-        showNotice.success(
-          'settings.components.verge.advanced.notifications.latestVersion',
-        )
-      } else {
-        showNotice.info('shared.feedback.notifications.updateAvailable', 2000)
-        goToSettings()
-      }
-    } catch (err) {
-      showNotice.error(err)
-    }
-  })
 
   // 是否启用自启动
   const autoLaunchEnabled = useMemo(
@@ -261,24 +216,6 @@ export const SystemInfoCard = () => {
           >
             {getModeIcon()}
             {getModeText()}
-          </Typography>
-        </Stack>
-        <Divider />
-        <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-          <Typography variant="body2" color="text.secondary">
-            {t('home.components.systemInfo.fields.lastCheckUpdate')}
-          </Typography>
-          <Typography
-            variant="body2"
-            onClick={onCheckUpdate}
-            sx={{
-              cursor: 'pointer',
-              textDecoration: 'underline',
-              fontWeight: 'medium',
-              '&:hover': { opacity: 0.7 },
-            }}
-          >
-            {lastCheckUpdateText}
           </Typography>
         </Stack>
         <Divider />

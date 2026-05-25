@@ -36,7 +36,7 @@ import { DailyTrafficProvider } from '@/providers/daily-traffic-provider'
 import { LayoutItem } from '@/components/layout/layout-item'
 import { LayoutTraffic } from '@/components/layout/layout-traffic'
 import { NoticeManager } from '@/components/layout/notice-manager'
-import { UpdateButton } from '@/components/layout/update-button'
+
 import { WindowControls } from '@/components/layout/window-controller'
 import { useI18n } from '@/hooks/use-i18n'
 import { useVerge } from '@/hooks/use-verge'
@@ -335,7 +335,7 @@ const Layout = () => {
                 />
                 <LogoSvg fill={isDark ? 'white' : 'black'} />
               </div>
-              <UpdateButton className="the-newbtn" />
+
             </div>
 
             {menuUnlocked && (
